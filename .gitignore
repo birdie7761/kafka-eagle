@@ -1,0 +1,10 @@
+kafka-eagle-api/target/
+kafka-eagle-common/target/
+kafka-eagle-core/target/
+kafka-eagle-plugin/target/
+kafka-eagle-web/target/
+.idea/
+.project
+.settings/
+*.iml
+*.classpath
