@@ -3,6 +3,8 @@
 # source function library
 #. /etc/rc.d/init.d/functions
 
+export MALLOC_ARENA_MAX=1
+
 COLOR_G="\x1b[0;32m"  # green
 COLOR_R="\x1b[1;31m"  # red
 RESET="\x1b[0m"
@@ -63,7 +65,7 @@ start()
 	CLASS=org.smartloli.kafka.eagle.plugin.server.TomcatServerListen
 	${JAVA_HOME}/bin/java -classpath "$CLASSPATH" $CLASS > ${LOG_DIR}/ke.out 2>&1
 	echo "*******************************************************************"
-    echo "* Kafka Eagle system monitor port successful... *"
+    echo "* Kafka Eagle system monitor port successful... "
 	echo "*******************************************************************"
 	sleep 3
 	rm -rf ${KE_HOME}/kms/webapps/ke/WEB-INF/classes/*.properties
@@ -76,12 +78,17 @@ start()
 	ret=$?
 	echo "Status Code["$ret"]"
 	isexit $ret
+	
+	CLASS=org.smartloli.kafka.eagle.plugin.font.KafkaEagleVersion
+	${JAVA_HOME}/bin/java -classpath "$CLASSPATH" $CLASS 2>&1
+	
 	echo "*******************************************************************"
-    	echo "* KE Service has started success! *"
-    	echo "* Welcome, Now you can visit 'http://<your_host_or_ip>:port/ke' *"
-    	echo "* Account:admin ,Password:123456                          *"
+    	echo "* Kafka Eagle Service has started success!"
+    	echo "* Welcome, Now you can visit 'http://<your_host_or_ip>:port/ke'"
+    	echo "* Account:admin ,Password:123456"
 	echo "*******************************************************************"
-    	echo "* <Usage> ke.sh [start|status|stop|restart|stats] </Usage> *"
+    	echo "* <Usage> ke.sh [start|status|stop|restart|stats] </Usage>"
+    	echo "* <Usage> http://ke.smartloli.org/ </Usage>"
 	echo "*******************************************************************"
 	ps -ef | grep ${KE_HOME}/kms/bin/ | grep -v grep | awk '{print $2}' > $DIALUP_PID
 	rm -rf ${LOG_DIR}/ke_console.out

@@ -56,7 +56,7 @@
 			data-toggle="dropdown"><i class="fa fa-sitemap"></i>
 				${clusterAlias} </a></li>
 		<li class="dropdown"><a href="#" class="dropdown-toggle"
-			data-toggle="dropdown"><i class="fa fa-bookmark"></i> V1.2.0 </a></li>
+			data-toggle="dropdown"><i class="fa fa-bookmark"></i> V1.2.1 </a></li>
 		<li class="dropdown"><a href="#" class="dropdown-toggle"
 			data-toggle="dropdown" aria-expanded="false"><i
 				class="fa fa-user"></i> ${LOGIN_USER_SESSION.realname} <b
@@ -107,6 +107,8 @@
 							class="fa fa-sitemap fa-fw"></i> Brokers</a></li>
 					<li id="navbar_cli"><a href="/ke/metrics/trend"><i
 							class="fa fa-bar-chart-o fa-fw"></i> Trend</a></li>
+					<li id="navbar_cli"><a href="/ke/metrics/zk"><i
+							class="fa fa-area-chart fa-fw"></i> Zookeeper</a></li>
 				</ul></li>
 			<li><a href="#" data-toggle="collapse" data-target="#demo1"><i
 					class="fa fa-fw fa-bell"></i> Alarm <i
