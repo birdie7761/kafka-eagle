@@ -17,6 +17,8 @@
  */
 package org.smartloli.kafka.eagle.web.controller;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,11 +37,20 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.smartloli.kafka.eagle.common.protocol.PartitionsInfo;
+import org.smartloli.kafka.eagle.common.protocol.topic.TopicConfig;
 import org.smartloli.kafka.eagle.common.util.KConstants;
+import org.smartloli.kafka.eagle.common.util.KConstants.Kafka;
+import org.smartloli.kafka.eagle.common.util.KConstants.Topic;
 import org.smartloli.kafka.eagle.common.util.SystemConfigUtils;
 import org.smartloli.kafka.eagle.core.factory.KafkaFactory;
 import org.smartloli.kafka.eagle.core.factory.KafkaService;
+import org.smartloli.kafka.eagle.core.factory.v2.BrokerFactory;
+import org.smartloli.kafka.eagle.core.factory.v2.BrokerService;
+import org.smartloli.kafka.eagle.core.metrics.KafkaMetricsFactory;
+import org.smartloli.kafka.eagle.core.metrics.KafkaMetricsService;
 import org.smartloli.kafka.eagle.web.service.TopicService;
 
 /**
@@ -61,6 +72,12 @@ public class TopicController {
 	/** Kafka service interface. */
 	private KafkaService kafkaService = new KafkaFactory().create();
 
+	/** Kafka metrics interface. */
+	private KafkaMetricsService kafkaMetricsService = new KafkaMetricsFactory().create();
+
+	/** Broker topic service interface. */
+	private static BrokerService brokerService = new BrokerFactory().create();
+
 	/** Topic create viewer. */
 	@RequiresPermissions("/topic/create")
 	@RequestMapping(value = "/topic/create", method = RequestMethod.GET)
@@ -76,6 +93,15 @@ public class TopicController {
 	public ModelAndView topicMessageView(HttpSession session) {
 		ModelAndView mav = new ModelAndView();
 		mav.setViewName("/topic/msg");
+		return mav;
+	}
+
+	/** Topic message manager. */
+	@RequiresPermissions("/topic/manager")
+	@RequestMapping(value = "/topic/manager", method = RequestMethod.GET)
+	public ModelAndView topicManagerView(HttpSession session) {
+		ModelAndView mav = new ModelAndView();
+		mav.setViewName("/topic/manager");
 		return mav;
 	}
 
@@ -157,6 +183,7 @@ public class TopicController {
 				JSONObject obj = new JSONObject();
 				obj.put("topic", tname);
 				obj.put("partition", meta.getInteger("partitionId"));
+				obj.put("logsize", meta.getInteger("logSize"));
 				obj.put("leader", meta.getInteger("leader"));
 				obj.put("replicas", meta.getString("replicas"));
 				obj.put("isr", meta.getString("isr"));
@@ -187,6 +214,51 @@ public class TopicController {
 			String name = request.getParameter("name");
 			JSONObject object = new JSONObject();
 			object.put("items", JSON.parseArray(topicService.mockTopics(clusterAlias, name)));
+			byte[] output = object.toJSONString().getBytes();
+			BaseController.response(output, response);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/** Get topic datasets by ajax. */
+	@RequestMapping(value = "/topic/manager/keys/ajax", method = RequestMethod.GET)
+	public void managerTopicKeysAjax(HttpServletResponse response, HttpServletRequest request) {
+		try {
+			HttpSession session = request.getSession();
+			String clusterAlias = session.getAttribute(KConstants.SessionAlias.CLUSTER_ALIAS).toString();
+			String name = request.getParameter("name");
+			JSONObject object = new JSONObject();
+			object.put("items", JSON.parseArray(topicService.listTopicKeys(clusterAlias, name)));
+			byte[] output = object.toJSONString().getBytes();
+			BaseController.response(output, response);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/** Get topic datasets by ajax. */
+	@RequestMapping(value = "/topic/manager/{type}/ajax", method = RequestMethod.GET)
+	public void alterTopicConfigAjax(@PathVariable("type") String type, HttpServletResponse response, HttpServletRequest request) {
+		try {
+			HttpSession session = request.getSession();
+			String clusterAlias = session.getAttribute(KConstants.SessionAlias.CLUSTER_ALIAS).toString();
+			String topic = request.getParameter("topic");
+			TopicConfig topicConfig = new TopicConfig();
+			topicConfig.setName(topic);
+			topicConfig.setType(type.toUpperCase());
+			if (KConstants.Topic.ADD.equals(topicConfig.getType())) {
+				String key = request.getParameter("key");
+				String value = request.getParameter("value");
+				ConfigEntry configEntry = new ConfigEntry(key, value);
+				topicConfig.setConfigEntry(configEntry);
+			} else if (KConstants.Topic.DELETE.equals(topicConfig.getType())) {
+				String key = request.getParameter("key");
+				ConfigEntry configEntry = new ConfigEntry(key, "");
+				topicConfig.setConfigEntry(configEntry);
+			}
+			JSONObject object = new JSONObject();
+			object.put("result", topicService.changeTopicConfig(clusterAlias, topicConfig));
 			byte[] output = object.toJSONString().getBytes();
 			BaseController.response(output, response);
 		} catch (Exception ex) {
@@ -232,41 +304,34 @@ public class TopicController {
 		HttpSession session = request.getSession();
 		String clusterAlias = session.getAttribute(KConstants.SessionAlias.CLUSTER_ALIAS).toString();
 
-		JSONArray topics = JSON.parseArray(topicService.list(clusterAlias));
-		int offset = 0;
+		Map<String, Object> map = new HashMap<>();
+		map.put("search", search);
+		map.put("start", iDisplayStart);
+		map.put("length", iDisplayLength);
+		long count = brokerService.topicNumbers(clusterAlias);
+		List<PartitionsInfo> topics = brokerService.topicRecords(clusterAlias, map);
 		JSONArray aaDatas = new JSONArray();
-		for (Object object : topics) {
-			JSONObject topic = (JSONObject) object;
-			if (search.length() > 0 && search.equals(topic.getString("topic"))) {
-				JSONObject obj = new JSONObject();
-				obj.put("id", topic.getInteger("id"));
-				obj.put("topic", "<a href='/ke/topic/meta/" + topic.getString("topic") + "/' target='_blank'>" + topic.getString("topic") + "</a>");
-				obj.put("partitions", topic.getString("partitions").length() > 50 ? topic.getString("partitions").substring(0, 50) + "..." : topic.getString("partitions"));
-				obj.put("partitionNumbers", topic.getInteger("partitionNumbers"));
-				obj.put("created", topic.getString("created"));
-				obj.put("modify", topic.getString("modify"));
-				obj.put("operate", "<a name='remove' href='#" + topic.getString("topic") + "' class='btn btn-danger btn-xs'>Remove</a>&nbsp");
-				aaDatas.add(obj);
-			} else if (search.length() == 0) {
-				if (offset < (iDisplayLength + iDisplayStart) && offset >= iDisplayStart) {
-					JSONObject obj = new JSONObject();
-					obj.put("id", topic.getInteger("id"));
-					obj.put("topic", "<a href='/ke/topic/meta/" + topic.getString("topic") + "/' target='_blank'>" + topic.getString("topic") + "</a>");
-					obj.put("partitions", topic.getString("partitions").length() > 50 ? topic.getString("partitions").substring(0, 50) + "..." : topic.getString("partitions"));
-					obj.put("partitionNumbers", topic.getInteger("partitionNumbers"));
-					obj.put("created", topic.getString("created"));
-					obj.put("modify", topic.getString("modify"));
-					obj.put("operate", "<a name='remove' href='#" + topic.getString("topic") + "' class='btn btn-danger btn-xs'>Remove</a>&nbsp");
-					aaDatas.add(obj);
-				}
-				offset++;
+		for (PartitionsInfo partition : topics) {
+			JSONObject object = new JSONObject();
+			object.put("id", partition.getId());
+			object.put("topic", "<a href='/ke/topic/meta/" + partition.getTopic() + "/' target='_blank'>" + partition.getTopic() + "</a>");
+			object.put("partitions", partition.getPartitions().size() > Topic.PARTITION_LENGTH ? partition.getPartitions().toString().substring(0, Topic.PARTITION_LENGTH) + "..." : partition.getPartitions().toString());
+			object.put("partitionNumbers", partition.getPartitionNumbers());
+			object.put("topicSize", "<a class='btn btn-primary btn-xs'>" + kafkaMetricsService.topicSize(clusterAlias, partition.getTopic()) + "</a>&nbsp");
+			object.put("created", partition.getCreated());
+			object.put("modify", partition.getModify());
+			if (Kafka.CONSUMER_OFFSET_TOPIC.equals(partition.getTopic())) {
+				object.put("operate", "");
+			} else {
+				object.put("operate", "<a name='remove' href='#" + partition.getTopic() + "' class='btn btn-danger btn-xs'>Remove</a>");
 			}
+			aaDatas.add(object);
 		}
 
 		JSONObject target = new JSONObject();
 		target.put("sEcho", sEcho);
-		target.put("iTotalRecords", topics.size());
-		target.put("iTotalDisplayRecords", topics.size());
+		target.put("iTotalRecords", count);
+		target.put("iTotalDisplayRecords", count);
 		target.put("aaData", aaDatas);
 		try {
 			byte[] output = target.toJSONString().getBytes();
@@ -299,8 +364,7 @@ public class TopicController {
 
 	/** Delete topic. */
 	@RequestMapping(value = "/topic/{topicName}/{token}/delete", method = RequestMethod.GET)
-	public ModelAndView topicDelete(@PathVariable("topicName") String topicName, @PathVariable("token") String token, HttpSession session, HttpServletResponse response,
-			HttpServletRequest request) {
+	public ModelAndView topicDelete(@PathVariable("topicName") String topicName, @PathVariable("token") String token, HttpSession session, HttpServletResponse response, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView();
 		if (SystemConfigUtils.getProperty("kafka.eagle.topic.token").equals(token)) {
 			String clusterAlias = session.getAttribute(KConstants.SessionAlias.CLUSTER_ALIAS).toString();
@@ -331,7 +395,7 @@ public class TopicController {
 		}
 	}
 
-	/** Get topic message by ajax. */
+	/** Get topic page message from kafka. */
 	@RequestMapping(value = "/topic/physics/commit/", method = RequestMethod.GET)
 	public void topicSqlPhysicsAjax(@RequestParam String sql, HttpSession session, HttpServletResponse response, HttpServletRequest request) {
 		String aoData = request.getParameter("aoData");

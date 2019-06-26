@@ -21,7 +21,7 @@
 
 	<update id="modify" parameterType="org.smartloli.kafka.eagle.web.pojo.Signiner">
 		update ke_users set
-		username=#{username},realname=#{realname},rtxno=#{rtxno} where id=#{id}
+		username=#{username},realname=#{realname},email=#{email} where id=#{id}
 	</update>
 
 	<delete id="delete" parameterType="org.smartloli.kafka.eagle.web.pojo.Signiner">
@@ -62,5 +62,9 @@
 		ke_users(rtxno,username,password,email,realname)
 		values(#{rtxno},#{username},#{password},#{email},#{realname})
 	</insert>
+	
+	<select id="findUserLimitOne" resultMap="signin">
+		select * from ke_users order by id desc limit 1
+	</select>
 
 </mapper>

@@ -13,6 +13,32 @@
 <meta name="description" content="">
 <meta name="author" content="">
 
+<style>
+.box{
+	border-bottom:1px solid #eee;
+	margin-bottom:20px;
+	margin-top:30px;
+	overflow:hidden;
+}
+.box .left{
+	font-size: 36px;
+	float:left
+}
+.box .left small{
+	font-size: 24px;
+	color:#777
+}
+.box  .right{
+	float:right;
+	width: 230px;
+	margin-top:20px; 
+	background: #fff; 
+	cursor: pointer; 
+	padding: 5px 10px; 
+	border: 1px solid #ccc;
+}
+</style>
+
 <title>Trend - KafkaEagle</title>
 <jsp:include page="../public/css.jsp">
 	<jsp:param value="plugins/datatimepicker/daterangepicker.css"
@@ -25,13 +51,15 @@
 		<div id="page-wrapper">
 			<div class="row">
 				<div class="col-lg-12">
-					<h1 class="page-header">
-						Zookeeper Monitor <small>details</small>
-					</h1>
-					<div id="reportrange"
-						style="position: absolute; top: 46px; left: 964px; width: 230px; background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
-						<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-						<span></span> <b class="caret"></b>
+					<div class="box">
+					  <p   class="left">
+							Zookeeper Monitor <small>details</small>
+						</p>
+						<div id="reportrange"
+						class="right">
+							<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+							<span></span> <b class="caret"></b>
+						</div>
 					</div>
 				</div>
 				<!-- /.col-lg-12 -->
@@ -52,7 +80,7 @@
 
 			<!-- /.row -->
 			<div class="row">
-				<div class="col-lg-6">
+				<div class="col-lg-12">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-bar-chart-o fa-fw"></i> <strong>Zookeeper
@@ -67,7 +95,7 @@
 					</div>
 				</div>
 				<!-- /.col-lg-4 -->
-				<div class="col-lg-6">
+				<div class="col-lg-12">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-bar-chart-o fa-fw"></i> <strong>Zookeeper
@@ -82,22 +110,22 @@
 					</div>
 				</div>
 				<!-- /.col-lg-4 -->
-				<div class="col-lg-6">
+				<!-- <div class="col-lg-6">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-bar-chart-o fa-fw"></i> <strong>
 								Zookeeper Avg Latency </strong>
 							<div class="pull-right"></div>
 						</div>
-						<!-- /.panel-heading -->
+						/.panel-heading
 						<div class="panel-body">
 							<div id="zk_avg_latency"></div>
 						</div>
-						<!-- /.panel-body -->
+						/.panel-body
 					</div>
-				</div>
+				</div> -->
 				<!-- /.col-lg-4 -->
-				<div class="col-lg-6">
+				<div class="col-lg-12">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-bar-chart-o fa-fw"></i> <strong>
@@ -112,7 +140,7 @@
 					</div>
 				</div>
 				<!-- /.col-lg-4 -->
-				<div class="col-lg-6">
+				<div class="col-lg-12">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-bar-chart-o fa-fw"></i> <strong>
@@ -127,20 +155,20 @@
 					</div>
 				</div>
 				<!-- /.col-lg-4 -->
-				<div class="col-lg-6">
+				<!-- <div class="col-lg-6">
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-bar-chart-o fa-fw"></i> <strong>
 								Zookeeper OpenFile Counts </strong>
 							<div class="pull-right"></div>
 						</div>
-						<!-- /.panel-heading -->
+						/.panel-heading
 						<div class="panel-body">
 							<div id="zk_openfile_counts"></div>
 						</div>
-						<!-- /.panel-body -->
+						/.panel-body
 					</div>
-				</div>
+				</div> -->
 				<!-- /.col-lg-4 -->
 			</div>
 		</div>

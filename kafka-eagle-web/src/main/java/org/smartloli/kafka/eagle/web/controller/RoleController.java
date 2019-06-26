@@ -126,7 +126,7 @@ public class RoleController {
 	@RequiresPermissions("/system/user/modify")
 	@RequestMapping(value = "/user/modify/", method = RequestMethod.POST)
 	public String modifyUser(HttpSession session, HttpServletRequest request) {
-		String rtxno = request.getParameter("ke_rtxno_name_modify");
+		// String rtxno = request.getParameter("ke_rtxno_name_modify");
 		String username = request.getParameter("ke_user_name_modify");
 		String realname = request.getParameter("ke_real_name_modify");
 		String email = request.getParameter("ke_user_email_modify");
@@ -136,12 +136,23 @@ public class RoleController {
 		signin.setId(Integer.parseInt(id));
 		signin.setEmail(email);
 		signin.setRealname(realname);
-		signin.setRtxno(Integer.parseInt(rtxno));
+		// signin.setRtxno(Integer.parseInt(rtxno));
 		signin.setUsername(username);
 		if (accountService.modify(signin) > 0) {
 			return "redirect:/system/user";
 		} else {
 			return "redirect:/errors/500";
+		}
+	}
+
+	/** Get user rtxno. */
+	@RequestMapping(value = "/user/signin/rtxno/ajax/", method = RequestMethod.GET)
+	public void getUserRtxNo(HttpServletResponse response, HttpServletRequest request) {
+		try {
+			byte[] output = accountService.getAutoUserRtxNo().getBytes();
+			BaseController.response(output, response);
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -185,6 +196,7 @@ public class RoleController {
 
 		JSONArray roles = JSON.parseArray(accountService.findUserBySearch(map).toString());
 		JSONArray aaDatas = new JSONArray();
+
 		for (Object object : roles) {
 			JSONObject role = (JSONObject) object;
 			int id = role.getInteger("id");
@@ -193,6 +205,8 @@ public class RoleController {
 			obj.put("username", role.getString("username"));
 			obj.put("realname", role.getString("realname"));
 			obj.put("email", role.getString("email"));
+			obj.put("password", role.getString("password"));
+			
 			if (KConstants.Role.ADMIN.equals(role.getString("username"))) {
 				obj.put("operate", "");
 			} else {
@@ -359,6 +373,17 @@ public class RoleController {
 				}
 			}
 			byte[] output = object.toJSONString().getBytes();
+			BaseController.response(output, response);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	/** Get alert info. */
+	@RequestMapping(value = "/console/cache/ajax", method = RequestMethod.GET)
+	public void getConsoleCacheAjax(HttpServletResponse response) {
+		try {
+			byte[] output = roleService.getConsoleCache().getBytes();
 			BaseController.response(output, response);
 		} catch (Exception ex) {
 			ex.printStackTrace();
