@@ -35,12 +35,16 @@ public class KConstants {
 	public interface Kafka {
 		public final static String CONSUMER_OFFSET_TOPIC = "__consumer_offsets";
 		public final static String KAFKA_EAGLE_SYSTEM_GROUP = "kafka.eagle.system.group";
+		public final static String AUTO_COMMIT = "true";
+		public final static String AUTO_COMMIT_MS = "1000";
+		public final static String EARLIEST = "earliest";
 		public final static String JAVA_SECURITY = "java.security.auth.login.config";
 		public final static int TIME_OUT = 100;
-		public final static long POSITION = 5000;// default 5000
+		public final static long POSITION = SystemConfigUtils.getLongProperty("kafka.eagle.sql.topic.records.max") == 0 ? 5000 : SystemConfigUtils.getLongProperty("kafka.eagle.sql.topic.records.max");
 		public final static String PARTITION_CLASS = "partitioner.class";
 		public final static String KEY_SERIALIZER = "key.serializer";
 		public final static String VALUE_SERIALIZER = "value.serializer";
+		public final static String UNKOWN = "Unknown";
 	}
 
 	/** Mail args setting. */
@@ -93,11 +97,19 @@ public class KConstants {
 		public final static String FAILED_PRODUCE_REQUEST = "produce";
 
 		/** MBean keys. */
-		public final static String MESSAGEIN = "MessageIn";
-		public final static String BYTEIN = "ByteIn";
-		public final static String BYTEOUT = "ByteOut";
-		public final static String FAILEDFETCHREQUEST = "FailedFetchRequest";
-		public final static String FAILEDPRODUCEREQUEST = "FailedProduceRequest";
+		public final static String MESSAGEIN = "message_in";
+		public final static String BYTEIN = "byte_in";
+		public final static String BYTEOUT = "byte_out";
+		public final static String BYTESREJECTED = "byte_rejected";
+		public final static String FAILEDFETCHREQUEST = "failed_fetch_request";
+		public final static String FAILEDPRODUCEREQUEST = "failed_produce_request";
+		public final static String PRODUCEMESSAGECONVERSIONS = "produce_message_conversions";
+		public final static String TOTALFETCHREQUESTSPERSEC = "total_fetch_requests";
+		public final static String TOTALPRODUCEREQUESTSPERSEC = "total_produce_requests";
+		public final static String REPLICATIONBYTESINPERSEC = "replication_bytes_out";
+		public final static String REPLICATIONBYTESOUTPERSEC = "replication_bytes_in";
+		public final static String OSTOTALMEMORY = "os_total_memory";
+		public final static String OSFREEMEMORY = "os_free_memory";
 	}
 
 	public interface Linux {
@@ -113,12 +125,73 @@ public class KConstants {
 	}
 
 	public interface ZK {
-		public static final String ZK_SEND_PACKETS = "ZKSendPackets";
-		public static final String ZK_RECEIVEDPACKETS = "ZKReceivedPackets";
-		public static final String ZK_AVGLATENCY = "ZKAvgLatency";
-		public static final String ZK_NUM_ALIVECONNRCTIONS = "ZKNumAliveConnections";
-		public static final String ZK_OUTSTANDING_REQUESTS = "ZKOutstandingRequests";
-		public static final String ZK_OPENFILE_DESCRIPTOR_COUNT = "ZKOpenFileDescriptorCount";
+		public static final String ZK_SEND_PACKETS = "zk_packets_sent";
+		public static final String ZK_RECEIVEDPACKETS = "zk_packets_received";
+		public static final String ZK_NUM_ALIVECONNRCTIONS = "zk_num_alive_connections";
+		public static final String ZK_OUTSTANDING_REQUESTS = "zk_outstanding_requests";
+
+	}
+
+	public interface TopicCache {
+		public static final String NAME = "TopicCacheData";
+	}
+
+	public interface ServerDevice {
+		public static final int TIME_OUT = 3000;
+		public static final int BUFFER_SIZE = 8049;
+	}
+
+	public interface CollectorType {
+		public static final String ZK = "zookeeper";
+		public static final String KAFKA = "kafka";
+	}
+
+	public interface Zookeeper {
+		public static final String LEADER = "leader";
+	}
+
+	public interface IM {
+		public static String TITLE = "Kafka Eagle Alert";
+	}
+
+	public interface WeChat {
+		public static String TOUSER = "@all";
+		public static String TOPARTY = "PartyID1|PartyID2";
+		public static String TOTAG = "TagID1 | TagID2";
+		public static long AGENTID = 1;
+	}
+
+	public interface Topic {
+		public static int PARTITION_LENGTH = 10;
+		public final static String[] KEYS = new String[] { "cleanup.policy", "compression.type", "delete.retention.ms", "file.delete.delay.ms", "flush.messages", "flush.ms", "follower.replication.throttled", "index.interval.bytes",
+				"leader.replication.throttled.replicas", "max.message.bytes", "message.downconversion.enable", "message.format.version", "message.timestamp.difference.max.ms", "message.timestamp.type", "min.cleanable.dirty.ratio",
+				"min.compaction.lag.ms", "min.insync.replicas", "preallocate", "retention.bytes", "retention.ms", "segment.bytes", "segment.index.bytes", "segment.jitter.ms", "segment.ms", "unclean.leader.election.enable" };
+
+		public final static String ADD = "ADD";
+		public final static String DELETE = "DELETE";
+		public final static String DESCRIBE = "DESCRIBE";
+
+		public final static String SUCCESS = "SUCCESS";
+		public final static String FAILED = "FAILED";
+
+		public final static String LOGSIZE = "logsize";
+		public final static String CAPACITY = "capacity";
+
+		public final static int BATCH_SIZE = 500;
+
+		public final static int RUNNING = 0;
+		public final static int SHUTDOWN = 1;
+		public final static int PENDING = 2;
+		
+		public final static String RUNNING_STRING = "Running";
+		public final static String SHUTDOWN_STRING = "Shutdown";
+		public final static String PENDING_STRING = "Pending";
+
+	}
+
+	public interface Component {
+		/** Flink app consumer don't commit consumer info into kafka. */
+		public static String UNKNOW = "unknow-host";
 
 	}
 

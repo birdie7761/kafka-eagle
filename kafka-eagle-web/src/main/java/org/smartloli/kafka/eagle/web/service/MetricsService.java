@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.smartloli.kafka.eagle.common.protocol.KpiInfo;
+import org.smartloli.kafka.eagle.common.protocol.topic.TopicOffsetsInfo;
 
 /**
  * Define access to the kafka monitoring data interface via jmx.
@@ -43,5 +44,17 @@ public interface MetricsService {
 
 	/** Crontab clean data. */
 	public void remove(int tm);
+
+	/** Set consumer topic metrics. */
+	public int setConsumerTopic(List<TopicOffsetsInfo> topicLag);
+
+	/** Clean consumer topic data. */
+	public void cleanConsumerTopic(int tm);
+	
+	/** Crontab clean topic logsize history data. */
+	public void cleanTopicLogSize(int tm);
+	
+	/** Crontab clean topic rank history data. */
+	public void cleanTopicRank(int tm);
 
 }
