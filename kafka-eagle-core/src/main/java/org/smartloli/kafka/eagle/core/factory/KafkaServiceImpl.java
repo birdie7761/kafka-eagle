@@ -1207,35 +1207,6 @@ public class KafkaServiceImpl implements KafkaService {
 		return version;
 	}
 
-	/** Get kafka version. */
-	private String getKafkaVersion(String host, int port, String ids, String clusterAlias) {
-		JMXConnector connector = null;
-		String version = "-";
-		String JMX = "service:jmx:rmi:///jndi/rmi://%s/jmxrmi";
-		try {
-			JMXServiceURL jmxSeriverUrl = new JMXServiceURL(String.format(JMX, host + ":" + port));
-			// connector = JMXConnectorFactory.connect(jmxSeriverUrl);
-			connector = JMXFactoryUtils.connectWithTimeout(jmxSeriverUrl, 30, TimeUnit.SECONDS);
-			MBeanServerConnection mbeanConnection = connector.getMBeanServerConnection();
-			if (CollectorType.KAFKA.equals(SystemConfigUtils.getProperty(clusterAlias + ".kafka.eagle.offset.storage"))) {
-				version = mbeanConnection.getAttribute(new ObjectName(String.format(KafkaServer.version, ids)), KafkaServer.value).toString();
-			} else {
-				version = mbeanConnection.getAttribute(new ObjectName(KafkaServer8.version), KafkaServer8.value).toString();
-			}
-		} catch (Exception ex) {
-			LOG.error("Get kafka version from jmx has error, msg is " + ex.getMessage());
-		} finally {
-			if (connector != null) {
-				try {
-					connector.close();
-				} catch (IOException e) {
-					LOG.error("Close jmx connector has error, msg is " + e.getMessage());
-				}
-			}
-		}
-		return version;
-	}
-
 	/** Get kafka 0.10.x sasl topic metadata. */
 	public List<MetadataInfo> findKafkaLeader(String clusterAlias, String topic) {
 		List<MetadataInfo> targets = new ArrayList<>();

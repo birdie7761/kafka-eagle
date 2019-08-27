@@ -47,7 +47,7 @@ import com.google.gson.Gson;
 
 /**
  * Achieve access to the kafka monitoring data interface through jmx.
- * 
+ *
  * @author smartloli.
  *
  *         Created by Jul 17, 2017 Update by No 3, 2018 by cocodroid
@@ -57,7 +57,7 @@ public class MetricsServiceImpl implements MetricsService {
 
 	@Autowired
 	private MBeanDao mbeanDao;
-	
+
 	@Autowired
 	private TopicDao topicDao;
 
@@ -174,56 +174,56 @@ public class MetricsServiceImpl implements MetricsService {
 		JSONArray zkOutstandingRequests = new JSONArray();
 		for (KpiInfo kpi : kpis) {
 			switch (kpi.getKey()) {
-			case ZK.ZK_SEND_PACKETS:
-				assembly(zkSendPackets, kpi);
-				break;
-			case ZK.ZK_RECEIVEDPACKETS:
-				assembly(zkReceivedPackets, kpi);
-				break;
-			case ZK.ZK_OUTSTANDING_REQUESTS:
-				assembly(zkOutstandingRequests, kpi);
-				break;
-			case ZK.ZK_NUM_ALIVECONNRCTIONS:
-				assembly(zkNumAliveConnections, kpi);
-				break;
-			case MBean.MESSAGEIN:
-				assembly(messageIns, kpi);
-				break;
-			case MBean.BYTEIN:
-				assembly(byteIns, kpi);
-				break;
-			case MBean.BYTEOUT:
-				assembly(byteOuts, kpi);
-				break;
-			case MBean.BYTESREJECTED:
-				assembly(byteRejected, kpi);
-				break;
-			case MBean.FAILEDFETCHREQUEST:
-				assembly(failedFetchRequest, kpi);
-				break;
-			case MBean.FAILEDPRODUCEREQUEST:
-				assembly(failedProduceRequest, kpi);
-				break;
-			case MBean.PRODUCEMESSAGECONVERSIONS:
-				assembly(produceMessageConversions, kpi);
-				break;
-			case MBean.TOTALFETCHREQUESTSPERSEC:
-				assembly(totalFetchRequests, kpi);
-				break;
-			case MBean.TOTALPRODUCEREQUESTSPERSEC:
-				assembly(totalProduceRequests, kpi);
-				break;
-			case MBean.REPLICATIONBYTESINPERSEC:
-				assembly(replicationBytesOuts, kpi);
-				break;
-			case MBean.REPLICATIONBYTESOUTPERSEC:
-				assembly(replicationBytesIns, kpi);
-				break;
-			case MBean.OSFREEMEMORY:
-				assembly(osFreeMems, kpi);
-				break;
-			default:
-				break;
+				case ZK.ZK_SEND_PACKETS:
+					assembly(zkSendPackets, kpi);
+					break;
+				case ZK.ZK_RECEIVEDPACKETS:
+					assembly(zkReceivedPackets, kpi);
+					break;
+				case ZK.ZK_OUTSTANDING_REQUESTS:
+					assembly(zkOutstandingRequests, kpi);
+					break;
+				case ZK.ZK_NUM_ALIVECONNRCTIONS:
+					assembly(zkNumAliveConnections, kpi);
+					break;
+				case MBean.MESSAGEIN:
+					assembly(messageIns, kpi);
+					break;
+				case MBean.BYTEIN:
+					assembly(byteIns, kpi);
+					break;
+				case MBean.BYTEOUT:
+					assembly(byteOuts, kpi);
+					break;
+				case MBean.BYTESREJECTED:
+					assembly(byteRejected, kpi);
+					break;
+				case MBean.FAILEDFETCHREQUEST:
+					assembly(failedFetchRequest, kpi);
+					break;
+				case MBean.FAILEDPRODUCEREQUEST:
+					assembly(failedProduceRequest, kpi);
+					break;
+				case MBean.PRODUCEMESSAGECONVERSIONS:
+					assembly(produceMessageConversions, kpi);
+					break;
+				case MBean.TOTALFETCHREQUESTSPERSEC:
+					assembly(totalFetchRequests, kpi);
+					break;
+				case MBean.TOTALPRODUCEREQUESTSPERSEC:
+					assembly(totalProduceRequests, kpi);
+					break;
+				case MBean.REPLICATIONBYTESINPERSEC:
+					assembly(replicationBytesOuts, kpi);
+					break;
+				case MBean.REPLICATIONBYTESOUTPERSEC:
+					assembly(replicationBytesIns, kpi);
+					break;
+				case MBean.OSFREEMEMORY:
+					assembly(osFreeMems, kpi);
+					break;
+				default:
+					break;
 			}
 		}
 		JSONObject target = new JSONObject();
@@ -276,7 +276,7 @@ public class MetricsServiceImpl implements MetricsService {
 
 	@Override
 	public void cleanTopicRank(int tm) {
-		topicDao.cleanTopicRank(tm);		
+		topicDao.cleanTopicRank(tm);
 	}
 
 }

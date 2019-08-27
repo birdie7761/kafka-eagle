@@ -26,7 +26,7 @@ import org.smartloli.kafka.eagle.common.protocol.topic.TopicOffsetsInfo;
 
 /**
  * Define access to the kafka monitoring data interface via jmx.
- * 
+ *
  * @author smartloli.
  *
  *         Created by Jul 17, 2017
@@ -44,25 +44,16 @@ public interface MetricsService {
 
 	/** Crontab clean data. */
 	public void remove(int tm);
-	
-	/** Set consumer topic lag metrics. */
-	public int setConsumerLag(List<TopicLagInfo> topicLag);
-	
-	/** Get consumer topic lag metrics. */
-	public List<TopicLagInfo> getConsumerLag(Map<String, Object> params);
-	
-	/** Clean lag data. */
-	public void cleanLagData(int tm);
 
 	/** Set consumer topic metrics. */
 	public int setConsumerTopic(List<TopicOffsetsInfo> topicLag);
 
 	/** Clean consumer topic data. */
 	public void cleanConsumerTopic(int tm);
-	
+
 	/** Crontab clean topic logsize history data. */
 	public void cleanTopicLogSize(int tm);
-	
+
 	/** Crontab clean topic rank history data. */
 	public void cleanTopicRank(int tm);
 

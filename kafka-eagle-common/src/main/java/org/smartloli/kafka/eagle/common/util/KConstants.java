@@ -194,48 +194,4 @@ public class KConstants {
 		public static String UNKNOW = "unknow-host";
 
 	}
-
-	public interface TopicCache {
-		public static final String NAME = "TopicCacheData";
-	}
-
-	public interface ServerDevice {
-		public static final int TIME_OUT = 3000;
-		public static final int BUFFER_SIZE = 8049;
-	}
-
-	public interface CollectorType {
-		public static final String ZK = "zookeeper";
-		public static final String KAFKA = "kafka";
-	}
-
-	public interface Zookeeper {
-		public static final String LEADER = "leader";
-	}
-
-	public interface IM {
-		public static String TITLE = "Kafka Eagle Alert";
-	}
-
-	public interface WeChat {
-		public static String TOUSER = "@all";
-		public static String TOPARTY = "PartyID1|PartyID2";
-		public static String TOTAG = "TagID1 | TagID2";
-		public static long AGENTID = 1;
-	}
-
-	public interface Topic {
-		public static int PARTITION_LENGTH = 10;
-		public final static String[] KEYS = new String[] { "cleanup.policy", "compression.type", "delete.retention.ms", "file.delete.delay.ms", "flush.messages", "flush.ms", "follower.replication.throttled", "index.interval.bytes",
-				"leader.replication.throttled.replicas", "max.message.bytes", "message.downconversion.enable", "message.format.version", "message.timestamp.difference.max.ms", "message.timestamp.type", "min.cleanable.dirty.ratio",
-				"min.compaction.lag.ms", "min.insync.replicas", "preallocate", "retention.bytes", "retention.ms", "segment.bytes", "segment.index.bytes", "segment.jitter.ms", "segment.ms", "unclean.leader.election.enable" };
-
-		public final static String ADD = "ADD";
-		public final static String DELETE = "DELETE";
-		public final static String DESCRIBE = "DESCRIBE";
-
-		public final static String SUCCESS = "SUCCESS";
-		public final static String FAILED = "FAILED";
-	}
-
 }
