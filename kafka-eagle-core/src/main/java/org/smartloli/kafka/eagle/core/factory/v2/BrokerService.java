@@ -20,10 +20,12 @@ package org.smartloli.kafka.eagle.core.factory.v2;
 import java.util.List;
 import java.util.Map;
 
+import org.smartloli.kafka.eagle.common.protocol.MetadataInfo;
 import org.smartloli.kafka.eagle.common.protocol.PartitionsInfo;
 
 /**
- * Consumer group, topic and topic page or partition interface.
+ * Consumer group, topic and topic page or partition interface.Kafka api 2.x
+ * version.
  * 
  * @author smartloli.
  *
@@ -31,8 +33,20 @@ import org.smartloli.kafka.eagle.common.protocol.PartitionsInfo;
  */
 public interface BrokerService {
 
+	/** Check topic from zookeeper metadata. */
+	public boolean findKafkaTopic(String clusterAlias, String topic);
+
+	/** Get topic list. */
+	public List<String> topicList(String clusterAlias);
+
+	/** Get kafka broker numbers. */
+	public long brokerNumbers(String clusterAlias);
+
 	/** Get topic number from zookeeper. */
 	public long topicNumbers(String clusterAlias);
+
+	/** Get topic number with match name from zookeeper. */
+	public long topicNumbers(String clusterAlias, String topic);
 
 	/** Get partition number from zookeeper. */
 	public long partitionNumbers(String clusterAlias, String topic);
@@ -42,11 +56,23 @@ public interface BrokerService {
 
 	/** Scan partition page display. */
 	public String partitionRecords(String clusterAlias, String topic, Map<String, Object> params);
-	
+
 	/** Get consumer topic under partition numbers. */
-	public String consumerTPNumbers(String clusterAlias,String group,String topic);
-	
+	public String consumerTPNumbers(String clusterAlias, String group, String topic);
+
 	/** Scan consumer topic under partition page display. */
-	public String consumerTPRecords(String clusterAlias,String group,String topic, Map<String, Object> params);
+	public String consumerTPRecords(String clusterAlias, String group, String topic, Map<String, Object> params);
+
+	/** Scan topic meta page display. */
+	public List<MetadataInfo> topicMetadataRecords(String clusterAlias, String topic, Map<String, Object> params);
+
+	/** Get topic producer logsize total. */
+	public long getTopicLogSizeTotal(String clusterAlias, String topic);
+
+	/** Get topic real logsize records. */
+	public long getTopicRealLogSize(String clusterAlias, String topic);
+	
+	/** Get topic producer send logsize records. */
+	public long getTopicProducerLogSize(String clusterAlias, String topic);
 
 }

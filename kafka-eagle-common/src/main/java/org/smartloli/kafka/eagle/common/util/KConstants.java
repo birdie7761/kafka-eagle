@@ -108,6 +108,8 @@ public class KConstants {
 		public final static String TOTALPRODUCEREQUESTSPERSEC = "total_produce_requests";
 		public final static String REPLICATIONBYTESINPERSEC = "replication_bytes_out";
 		public final static String REPLICATIONBYTESOUTPERSEC = "replication_bytes_in";
+		public final static String OSTOTALMEMORY = "os_total_memory";
+		public final static String OSFREEMEMORY = "os_free_memory";
 	}
 
 	public interface Linux {
@@ -127,6 +129,69 @@ public class KConstants {
 		public static final String ZK_RECEIVEDPACKETS = "zk_packets_received";
 		public static final String ZK_NUM_ALIVECONNRCTIONS = "zk_num_alive_connections";
 		public static final String ZK_OUTSTANDING_REQUESTS = "zk_outstanding_requests";
+
+	}
+
+	public interface TopicCache {
+		public static final String NAME = "TopicCacheData";
+	}
+
+	public interface ServerDevice {
+		public static final int TIME_OUT = 3000;
+		public static final int BUFFER_SIZE = 8049;
+	}
+
+	public interface CollectorType {
+		public static final String ZK = "zookeeper";
+		public static final String KAFKA = "kafka";
+	}
+
+	public interface Zookeeper {
+		public static final String LEADER = "leader";
+	}
+
+	public interface IM {
+		public static String TITLE = "Kafka Eagle Alert";
+	}
+
+	public interface WeChat {
+		public static String TOUSER = "@all";
+		public static String TOPARTY = "PartyID1|PartyID2";
+		public static String TOTAG = "TagID1 | TagID2";
+		public static long AGENTID = 1;
+	}
+
+	public interface Topic {
+		public static int PARTITION_LENGTH = 10;
+		public final static String[] KEYS = new String[] { "cleanup.policy", "compression.type", "delete.retention.ms", "file.delete.delay.ms", "flush.messages", "flush.ms", "follower.replication.throttled", "index.interval.bytes",
+				"leader.replication.throttled.replicas", "max.message.bytes", "message.downconversion.enable", "message.format.version", "message.timestamp.difference.max.ms", "message.timestamp.type", "min.cleanable.dirty.ratio",
+				"min.compaction.lag.ms", "min.insync.replicas", "preallocate", "retention.bytes", "retention.ms", "segment.bytes", "segment.index.bytes", "segment.jitter.ms", "segment.ms", "unclean.leader.election.enable" };
+
+		public final static String ADD = "ADD";
+		public final static String DELETE = "DELETE";
+		public final static String DESCRIBE = "DESCRIBE";
+
+		public final static String SUCCESS = "SUCCESS";
+		public final static String FAILED = "FAILED";
+
+		public final static String LOGSIZE = "logsize";
+		public final static String CAPACITY = "capacity";
+
+		public final static int BATCH_SIZE = 500;
+
+		public final static int RUNNING = 0;
+		public final static int SHUTDOWN = 1;
+		public final static int PENDING = 2;
+		
+		public final static String RUNNING_STRING = "Running";
+		public final static String SHUTDOWN_STRING = "Shutdown";
+		public final static String PENDING_STRING = "Pending";
+
+	}
+
+	public interface Component {
+		/** Flink app consumer don't commit consumer info into kafka. */
+		public static String UNKNOW = "unknow-host";
 
 	}
 

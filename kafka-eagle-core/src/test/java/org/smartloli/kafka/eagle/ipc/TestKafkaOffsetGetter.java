@@ -52,7 +52,6 @@ import org.smartloli.kafka.eagle.core.factory.KafkaService;
 import kafka.common.OffsetAndMetadata;
 import kafka.common.OffsetMetadata;
 import kafka.coordinator.group.GroupTopicPartition;
-import kafka.coordinator.group.OffsetKey;
 
 /**
  * New offset storage formats: kafka
@@ -68,9 +67,6 @@ public class TestKafkaOffsetGetter extends Thread {
 	/** Consumer offsets in kafka topic. */
 	private final static String CONSUMER_OFFSET_TOPIC = KConstants.Kafka.CONSUMER_OFFSET_TOPIC;
 
-	/** Multi cluster information. */
-	// public static Map<String, Map<GroupTopicPartition, OffsetAndMetadata>>
-	// multiKafkaConsumerOffsets = new ConcurrentHashMap<>();
 	/** Add LRCCache. */
 	public static Map<String, Map<GroupTopicPartition, OffsetAndMetadata>> multiKafkaConsumerOffsets = new LRUCacheUtils<>();
 
@@ -139,76 +135,6 @@ public class TestKafkaOffsetGetter extends Thread {
 		}
 	};
 
-	/** Listening offset thread method. */
-//	@Deprecated
-//	private static synchronized void startOffsetListener(String clusterAlias, ConsumerConnector consumerConnector) {
-//		Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-//		topicCountMap.put(CONSUMER_OFFSET_TOPIC, new Integer(1));
-//		KafkaStream<byte[], byte[]> offsetMsgStream = consumerConnector.createMessageStreams(topicCountMap).get(CONSUMER_OFFSET_TOPIC).get(0);
-//
-//		ConsumerIterator<byte[], byte[]> it = offsetMsgStream.iterator();
-//		while (true) {
-//			MessageAndMetadata<byte[], byte[]> offsetMsg = it.next();
-//			if (ByteBuffer.wrap(offsetMsg.key()).getShort() < 2) {
-//				try {
-//					GroupTopicPartition commitKey = readMessageKey(ByteBuffer.wrap(offsetMsg.key()));
-//					if (offsetMsg.message() == null) {
-//						continue;
-//					}
-//					OffsetAndMetadata commitValue = readMessageValue(ByteBuffer.wrap(offsetMsg.message()));
-//					if (multiKafkaConsumerOffsets.containsKey(clusterAlias)) {
-//						multiKafkaConsumerOffsets.get(clusterAlias).put(commitKey, commitValue);
-//					} else {
-//						Map<GroupTopicPartition, OffsetAndMetadata> kafkaConsumerOffsets = new ConcurrentHashMap<>();
-//						kafkaConsumerOffsets.put(commitKey, commitValue);
-//						multiKafkaConsumerOffsets.put(clusterAlias, kafkaConsumerOffsets);
-//					}
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-//	}
-
-	/** Listening offset thread method with sasl. */
-//	private static synchronized void startOffsetSaslListener(String clusterAlias, KafkaConsumer<String, String> consumer) {
-//		consumer.subscribe(Arrays.asList(Kafka.CONSUMER_OFFSET_TOPIC));
-//		boolean flag = true;
-//		while (flag) {
-//			try {
-//				ConsumerRecords<String, String> records = consumer.poll(1000);
-//				for (ConsumerRecord<String, String> record : records) {
-//					try {
-//						if (record != null && record.value() != null) {
-//							Object offsetKey = GroupMetadataManager.readMessageKey(ByteBuffer.wrap(record.key().getBytes()));
-//							if (offsetKey instanceof OffsetKey) {
-//								GroupTopicPartition commitKey = ((OffsetKey) offsetKey).key();
-//								if (commitKey.topicPartition().topic().equals(Topic.GroupMetadataTopicName())) {
-//									continue;
-//								}
-//
-//								OffsetAndMetadata commitValue = GroupMetadataManager.readOffsetMessageValue(ByteBuffer.wrap(record.value().getBytes()));
-//								if (multiKafkaConsumerOffsets.containsKey(clusterAlias)) {
-//									multiKafkaConsumerOffsets.get(clusterAlias).put(commitKey, commitValue);
-//								} else {
-//									Map<GroupTopicPartition, OffsetAndMetadata> kafkaConsumerOffsets = new ConcurrentHashMap<>();
-//									kafkaConsumerOffsets.put(commitKey, commitValue);
-//									multiKafkaConsumerOffsets.put(clusterAlias, kafkaConsumerOffsets);
-//								}
-//							} else {
-//								LOG.info("Consumer group[" + offsetKey.toString() + "] thread has shutdown.");
-//							}
-//						}
-//					} catch (Exception e) {
-//						LOG.error("Get consumer records has error, msg is " + e.getMessage());
-//					}
-//				}
-//			} catch (Exception ex) {
-//				LOG.error("Start kafka sasl listener has error, msg is " + ex.getMessage());
-//			}
-//		}
-//	}
-	
 	private static synchronized void startKafkaOffsetListener(String clusterAlias, KafkaConsumer<String, String> consumer) {
 		consumer.subscribe(Arrays.asList(CONSUMER_OFFSET_TOPIC));
 		boolean flag = true;
@@ -218,9 +144,9 @@ public class TestKafkaOffsetGetter extends Thread {
 				for (ConsumerRecord<String, String> record : records) {
 					try {
 						if (record != null && record.value() != null) {
-							Object offsetKey = readMessageKey(ByteBuffer.wrap(record.key().getBytes()));
-							if (offsetKey instanceof OffsetKey) {
-								GroupTopicPartition commitKey = ((OffsetKey) offsetKey).key();
+							GroupTopicPartition offsetKey = readMessageKey(ByteBuffer.wrap(record.key().getBytes()));
+							if (offsetKey != null) {
+								GroupTopicPartition commitKey = offsetKey;
 								if (commitKey.topicPartition().topic().equals(CONSUMER_OFFSET_TOPIC)) {
 									continue;
 								}
@@ -233,10 +159,7 @@ public class TestKafkaOffsetGetter extends Thread {
 									kafkaConsumerOffsets.put(commitKey, commitValue);
 									multiKafkaConsumerOffsets.put(clusterAlias, kafkaConsumerOffsets);
 								}
-							} else {
-								LOG.info("Consumer group[" + offsetKey.toString() + "] thread has shutdown.");
 							}
-							
 							System.out.println(multiKafkaConsumerOffsets.toString());
 						}
 					} catch (Exception e) {
@@ -258,11 +181,22 @@ public class TestKafkaOffsetGetter extends Thread {
 	private static GroupTopicPartition readMessageKey(ByteBuffer buffer) {
 		short version = buffer.getShort();
 		Schema keySchema = schemaFor(version).getKeySchema();
-		Struct key = (Struct) keySchema.read(buffer);
-		String group = key.getString(KEY_GROUP_FIELD);
-		String topic = key.getString(KEY_TOPIC_FIELD);
-		int partition = key.getInt(KEY_PARTITION_FIELD);
-		return new GroupTopicPartition(group, new TopicPartition(topic, partition));
+		Struct key = null;
+		try {
+			key = (Struct) keySchema.read(buffer);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("error version: " + version);
+		}
+		if (key == null) {
+			return null;
+		} else {
+			String group = key.getString(KEY_GROUP_FIELD);
+			String topic = key.getString(KEY_TOPIC_FIELD);
+			int partition = key.getInt(KEY_PARTITION_FIELD);
+			return new GroupTopicPartition(group, new TopicPartition(topic, partition));
+		}
+
 	}
 
 	/** Analysis of buffer data in metadata in Kafka. */
@@ -326,7 +260,6 @@ public class TestKafkaOffsetGetter extends Thread {
 	}
 	
 	public static void main(String[] args) {
-		
 	}
 
 	/** Run method for running thread. */
@@ -363,8 +296,8 @@ public class TestKafkaOffsetGetter extends Thread {
 			// props.put(ConsumerConfig.EXCLUDE_INTERNAL_TOPICS_CONFIG,
 			// "false");
 			// props.put(KafkaConfig.ZkConnectProp(), zk);
-			// ConsumerConnector consumer =
-			// Consumer.createJavaConsumerConnector(new
+			// ConsumerConnector consumer = Consumer<K,
+			// V>.createJavaConsumerConnector(new
 			// kafka.consumer.ConsumerConfig(props));
 			// startOffsetListener(clusterAlias, consumer);
 			// }

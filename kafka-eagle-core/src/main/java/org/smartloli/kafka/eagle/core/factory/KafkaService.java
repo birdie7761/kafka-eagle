@@ -19,12 +19,17 @@ package org.smartloli.kafka.eagle.core.factory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
+import org.apache.kafka.common.TopicPartition;
+import org.smartloli.kafka.eagle.common.protocol.BrokersInfo;
 import org.smartloli.kafka.eagle.common.protocol.DisplayInfo;
 import org.smartloli.kafka.eagle.common.protocol.KafkaSqlInfo;
 import org.smartloli.kafka.eagle.common.protocol.MetadataInfo;
 import org.smartloli.kafka.eagle.common.protocol.OffsetZkInfo;
+import org.smartloli.kafka.eagle.common.protocol.OwnerInfo;
+import org.smartloli.kafka.eagle.core.factory.v2.BrokerService;
 
 /**
  * Kafka group,topic and partition interface.
@@ -50,9 +55,13 @@ public interface KafkaService {
 	public Set<String> getActiveTopic(String clusterAlias, String group);
 
 	/** Get all broker list from zookeeper. */
-	public String getAllBrokersInfo(String clusterAlias);
+	public List<BrokersInfo> getAllBrokersInfo(String clusterAlias);
 
-	/** Get all topic info from zookeeper. */
+	/**
+	 * Get all topic info from zookeeper. Deprecated this method in the v1.3.4
+	 * and replace {@link BrokerService.topicRecords} method.
+	 */
+	@Deprecated
 	public String getAllPartitions(String clusterAlias);
 
 	/** Get broker host info from ids. */
@@ -69,6 +78,9 @@ public interface KafkaService {
 
 	/** Get kafka 0.10.x offset from topic. */
 	public String getKafkaOffset(String clusterAlias);
+	
+	/** Get the data for the topic partition in the specified consumer group */
+	public Map<Integer, Long> getKafkaOffset(String clusterAlias,String group,String topic, Set<Integer> partitionids);
 
 	/** Use kafka console comand to create topic. */
 	public Map<String, Object> create(String clusterAlias, String topicName, String partitions, String replic);
@@ -82,11 +94,21 @@ public interface KafkaService {
 	/** Get kafka 0.10.x active consumer group & topics. */
 	public Set<String> getKafkaActiverTopics(String clusterAlias, String group);
 
+	/** Get kafka 0.10.x consumer topic, maybe consumer topic owner is null. */
+	public Set<String> getKafkaConsumerTopics(String clusterAlias, String group);
+
 	/** Get kafka 0.10.x consumer group & topic information. */
 	public String getKafkaConsumer(String clusterAlias);
+	
+	/** Get kafka 0.10.x consumer group & topic information used for page. */
+	public String getKafkaConsumer(String clusterAlias,DisplayInfo page);
 
+	@Deprecated
 	/** Get kafka consumer information pages. */
 	public String getKafkaActiverSize(String clusterAlias, String group);
+
+	/** Get kafka consumer information pages not owners. */
+	public OwnerInfo getKafkaActiverNotOwners(String clusterAlias, String group);
 
 	/** Get kafka broker bootstrap server. */
 	public String getKafkaBrokerServer(String clusterAlias);
@@ -100,8 +122,20 @@ public interface KafkaService {
 	/** Get kafka consumer group & topic. */
 	public String getKafkaConsumerGroupTopic(String clusterAlias, String group);
 
-	/** Get kafka sasl logsize . */
+	/** Get kafka topic history logsize . */
 	public long getKafkaLogSize(String clusterAlias, String topic, int partitionid);
+
+	/** Get kafka topic history batch logsize. */
+	public Map<TopicPartition, Long> getKafkaLogSize(String clusterAlias, String topic, Set<Integer> partitionids);
+
+	/** Get kafka topic real logsize by partitionid. */
+	public long getKafkaRealLogSize(String clusterAlias, String topic, int partitionid);
+
+	/** Get kafka topic real logsize by partitionid set. */
+	public long getKafkaRealLogSize(String clusterAlias, String topic, Set<Integer> partitionids);
+	
+	/** Get topic producer send logsize records. */
+	public long getKafkaProducerLogSize(String clusterAlias, String topic, Set<Integer> partitionids);
 
 	/** Get kafka sasl topic metadate. */
 	public List<MetadataInfo> findKafkaLeader(String clusterAlias, String topic);
@@ -115,7 +149,25 @@ public interface KafkaService {
 	/** Get consumer group all topics lag. */
 	public long getLag(String clusterAlias, String group, String topic);
 
-	/** Get kafka logsize by old version. */
+	/** Get kafka history logsize by old version. */
 	public long getLogSize(String clusterAlias, String topic, int partitionid);
+
+	/** Get kafka history logsize by old version. */
+	public long getLogSize(String clusterAlias, String topic, Set<Integer> partitionids);
+
+	/** Get kafka real logsize by old version partition set. */
+	public long getRealLogSize(String clusterAlias, String topic, int partitionid);
+
+	/** Get topic metadata. */
+	public String getReplicasIsr(String clusterAlias, String topic, int partitionid);
+
+	/** Get kafka version. */
+	public String getKafkaVersion(String host, int port, String ids, String clusterAlias);
+
+	/** Get kafka os memory. */
+	public long getOSMemory(String host, int port, String property);
+
+	/** Set kafka sasl acl. */
+	public void sasl(Properties props, String clusterAlias);
 
 }

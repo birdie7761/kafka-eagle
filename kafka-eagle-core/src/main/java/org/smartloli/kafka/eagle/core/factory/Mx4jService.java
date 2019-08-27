@@ -90,5 +90,5 @@ public interface Mx4jService {
 
 	public MBeanInfo replicationBytesOutPerSec(String uri);
 
-	MBeanInfo replicationBytesOutPerSec(String uri, String topic);
+	public MBeanInfo replicationBytesOutPerSec(String uri, String topic);
 }
